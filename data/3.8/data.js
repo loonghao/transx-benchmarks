@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1790617012332,
+  "lastUpdate": 1790644836320,
   "repoUrl": "https://github.com/loonghao/transx",
   "entries": {
     "TransX Performance Benchmarks (Python 3.8)": [
@@ -3251,6 +3251,184 @@ window.BENCHMARK_DATA = {
             "unit": "iter/sec",
             "range": "stddev: 0.00006244464633057742",
             "extra": "mean: 583.8636488339909 usec\nrounds: 729"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "13111745+loonghao@users.noreply.github.com",
+            "name": "Hal",
+            "username": "loonghao"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6d679f2fd08c3b30e23ffdbfb033cf26b6b8efcf",
+          "message": "feat(translate): persist translations in a translation memory (#50)\n\n* feat(translate): persist translations in a translation memory\n\nAuto-translation re-sent every string on every run, because the caches that\navoid that live in the process and die with it. A project therefore paid the\nfull request count again on each CI run and each local run, which is what kept\npushing it into the backend's rate limit.\n\nAdd a translation memory that survives the process. Strings are looked up\nbefore any request is made, so a repeat run costs no network traffic at all,\nand results are written back so the next run is cheaper still.\n\nThe memory is plain JSON, versioned and sorted, and written through a\ntemporary file and a rename so it can be committed alongside the catalogs and\nreviewed in a diff without churn. A file that is missing, corrupt or from an\nunknown version is set aside and treated as empty: bad cache state must never\nbreak a localisation run.\n\nEntries are keyed by source text, languages and engine, so switching backends\ncannot silently reuse another engine's translations under a new name.\n\nOffline mode (TRANSX_OFFLINE, or --offline) refuses to open a socket. Misses\nfall back to the source text and are reported through the existing failure\ncount rather than raised, so a half populated memory still produces a complete\ncatalog and a non-zero exit status.\n\nThe memory is only enabled when a location is known - an explicit path,\nTRANSX_TM_PATH, or a locale root. A bare GoogleTranslator() stays inert\ninstead of quietly sharing a file in the user's home directory, which would\ncouple unrelated runs together.\n\n* fix(translate): keep offline fallbacks out of the translation memory\n\nAn offline miss substituted the source text for the missing translation\nand then persisted it like any other result. Because the entry was never\nempty it survived every later lookup, so the string was never translated\nagain - not even once the network was back - and failure_count stayed at\nzero, turning a real gap into a green run.\n\nOffline fallbacks are now returned but not remembered, so the gap stays\nvisible to the next run.\n\nAlso spell out the temporary-file cleanup in _atomic_write instead of\nusing contextlib.suppress: that API is Python 3.4+ and raises\nAttributeError on 2.7 inside the very handler save() depends on, where\nonly (IOError, OSError) is caught. The 2.7 static guard now rejects it.",
+          "timestamp": "2026-09-29T09:19:04+08:00",
+          "tree_id": "7fe5734e7537f58551a9967591e8fc17c0fad4ea",
+          "url": "https://github.com/loonghao/transx/commit/6d679f2fd08c3b30e23ffdbfb033cf26b6b8efcf"
+        },
+        "date": 1790644831700,
+        "tool": "pytest",
+        "benches": [
+          {
+            "name": "tests/benchmarks/test_parsing_performance.py::test_mo_parsing",
+            "value": 312.4873183103847,
+            "unit": "iter/sec",
+            "range": "stddev: 0.001699936303128526",
+            "extra": "mean: 3.200129865771796 msec\nrounds: 298"
+          },
+          {
+            "name": "tests/benchmarks/test_parsing_performance.py::test_po_parsing",
+            "value": 45.63474089322341,
+            "unit": "iter/sec",
+            "range": "stddev: 0.002063593287354659",
+            "extra": "mean: 21.913129787234013 msec\nrounds: 47"
+          },
+          {
+            "name": "tests/benchmarks/test_parsing_performance.py::test_pot_parsing",
+            "value": 25.380894004896145,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0034815694121694755",
+            "extra": "mean: 39.399715384615426 msec\nrounds: 26"
+          },
+          {
+            "name": "tests/benchmarks/test_parsing_performance.py::test_po_to_mo_compilation",
+            "value": 35.62639515508161,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0030491914917836357",
+            "extra": "mean: 28.069076190476263 msec\nrounds: 42"
+          },
+          {
+            "name": "tests/benchmarks/test_parsing_performance.py::test_catalog_build",
+            "value": 273.5449086990233,
+            "unit": "iter/sec",
+            "range": "stddev: 0.001953492530236676",
+            "extra": "mean: 3.655706862745095 msec\nrounds: 306"
+          },
+          {
+            "name": "tests/benchmarks/test_parsing_performance.py::test_mo_catalog_lookup",
+            "value": 2327.4189777949327,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00005036891588466512",
+            "extra": "mean: 429.6604992657705 usec\nrounds: 681"
+          },
+          {
+            "name": "tests/benchmarks/test_performance.py::test_transx_init",
+            "value": 4658.204262257166,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000032829192899133265",
+            "extra": "mean: 214.67499999998773 usec\nrounds: 2544"
+          },
+          {
+            "name": "tests/benchmarks/test_performance.py::test_translation_lookup",
+            "value": 1545143.5041951751,
+            "unit": "iter/sec",
+            "range": "stddev: 3.584665913946381e-7",
+            "extra": "mean: 647.1890780920534 nsec\nrounds: 107527"
+          },
+          {
+            "name": "tests/benchmarks/test_performance.py::test_translation_with_params",
+            "value": 709214.5298833108,
+            "unit": "iter/sec",
+            "range": "stddev: 8.036023820573973e-7",
+            "extra": "mean: 1.4100105932185751 usec\nrounds: 1888"
+          },
+          {
+            "name": "tests/benchmarks/test_performance.py::test_translation_with_multiple_params",
+            "value": 628293.2881250657,
+            "unit": "iter/sec",
+            "range": "stddev: 4.6001989099574317e-7",
+            "extra": "mean: 1.5916133737225977 usec\nrounds: 17826"
+          },
+          {
+            "name": "tests/benchmarks/test_performance.py::test_translation_switch_locale",
+            "value": 1115152.099046602,
+            "unit": "iter/sec",
+            "range": "stddev: 5.138985885309805e-7",
+            "extra": "mean: 896.7386609010098 nsec\nrounds: 4630"
+          },
+          {
+            "name": "tests/benchmarks/test_performance.py::test_translation_fallback",
+            "value": 1581267.4214949044,
+            "unit": "iter/sec",
+            "range": "stddev: 2.490664353520682e-7",
+            "extra": "mean: 632.4040996523006 nsec\nrounds: 128206"
+          },
+          {
+            "name": "tests/benchmarks/test_performance.py::test_translation_batch",
+            "value": 22810.4787184095,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000003800850599354833",
+            "extra": "mean: 43.839500798943625 usec\nrounds: 18149"
+          },
+          {
+            "name": "tests/benchmarks/test_performance.py::test_translation_batch_with_params",
+            "value": 8159.464644744023,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000012329971871308005",
+            "extra": "mean: 122.55706024097513 usec\nrounds: 4150"
+          },
+          {
+            "name": "tests/benchmarks/test_performance.py::test_translation_long_text",
+            "value": 1599354.5134300725,
+            "unit": "iter/sec",
+            "range": "stddev: 3.1667308373816026e-7",
+            "extra": "mean: 625.2522449543345 nsec\nrounds: 90091"
+          },
+          {
+            "name": "tests/benchmarks/test_performance.py::test_translation_mixed_load",
+            "value": 15325.909638979552,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000005562126215496333",
+            "extra": "mean: 65.24898185857914 usec\nrounds: 2701"
+          },
+          {
+            "name": "tests/benchmarks/test_performance.py::test_po_file_loading",
+            "value": 2520.0726173927465,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00007027328917392987",
+            "extra": "mean: 396.813962065345 usec\nrounds: 1898"
+          },
+          {
+            "name": "tests/benchmarks/test_performance.py::test_translation_cache_performance",
+            "value": 2070455.9323113186,
+            "unit": "iter/sec",
+            "range": "stddev: 9.918345895097713e-8",
+            "extra": "mean: 482.9854064467274 nsec\nrounds: 178572"
+          },
+          {
+            "name": "tests/benchmarks/test_performance.py::test_translation_with_nested_params",
+            "value": 262760.6748507259,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0000010178124937755922",
+            "extra": "mean: 3.8057445261476017 usec\nrounds: 12377"
+          },
+          {
+            "name": "tests/benchmarks/test_performance.py::test_translation_with_large_params",
+            "value": 71897.17753423864,
+            "unit": "iter/sec",
+            "range": "stddev: 0.0000018402420640501184",
+            "extra": "mean: 13.908751835547138 usec\nrounds: 10215"
+          },
+          {
+            "name": "tests/benchmarks/test_performance.py::test_translation_concurrent_locale_switch",
+            "value": 12623.762376242237,
+            "unit": "iter/sec",
+            "range": "stddev: 0.000010422990326172147",
+            "extra": "mean: 79.21568627448086 usec\nrounds: 1326"
+          },
+          {
+            "name": "tests/benchmarks/test_performance.py::test_translation_memory_usage",
+            "value": 2117.620877034608,
+            "unit": "iter/sec",
+            "range": "stddev: 0.00001641551905892006",
+            "extra": "mean: 472.2280606717202 usec\nrounds: 923"
           }
         ]
       }
